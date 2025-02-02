@@ -8,6 +8,7 @@ import api.utils.ApiBase;
 import api.utils.ApiEndpoints;
 import api.utils.ApiPayloads;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,43 +74,43 @@ public class PetstoreAPINegativeTest extends ApiBase {
         }
     }
 
-    @Test(priority = 3, description = "Verify API response when deleting a non-existing pet")
+    @Test(priority = 3, description = "Verify API response when deleting a non-existing pet with a very large ID")
     public void testDeleteNonExistingPet() {
-        long nonExistingPetId = 99999999999L; // Rastgele, var olmayan büyük bir pet ID
+        // Aşırı büyük bir pet ID (BigInteger olarak tutulup String'e çevriliyor)
+        String bigNumber = "99999999999999999999999999999999999999999999999999999";
 
-        Response response = given()
-                .when()
-                .delete(ApiEndpoints.DELETE_PET + nonExistingPetId)
-                .then()
-                .extract().response();
+        try {
+            Response response = given()
+                    .when()
+                    .delete(ApiEndpoints.DELETE_PET + bigNumber) // ID'yi String olarak ekledik
+                    .then()
+                    .extract().response();
 
-        int statusCode = response.getStatusCode();
-        String responseBody = response.getBody().asString();
+            int statusCode = response.getStatusCode();
+            String responseBody = response.getBody().asString();
 
-        System.out.println("Delete Response Body: " + responseBody);
-        System.out.println("Status Code: " + statusCode);
+            System.out.println("Delete Response Body: " + responseBody);
+            System.out.println("Status Code: " + statusCode);
 
-        if (statusCode == 404) {
-            String errorMessage = response.jsonPath().getString("message");
+            // Eğer API 404 döndürdüyse, bu beklenen bir durumdur ve test PASS olur
+            if (statusCode == 404) {
+                String errorMessage = response.jsonPath().getString("message");
 
-            // Hata mesajı varsa doğrula
-            Assert.assertNotNull(errorMessage, "Error message should be present for non-existing pet");
-            Assert.assertTrue(errorMessage.toLowerCase().contains("not found"),
-                    "Expected 'not found' message, but got: " + errorMessage);
-
-        } else if (statusCode == 200) {
-            String message = response.jsonPath().getString("message");
-
-            // Eğer mesaj sadece bir ID içeriyorsa, uyarı ver ama testi geç
-            if (message.matches("\\d+")) {
-                System.out.println("⚠ WARNING: API returned only an ID as a message: " + message);
-            } else {
-                Assert.fail("Unexpected response message: " + message);
+                Assert.assertNotNull(errorMessage, "Error message should be present for non-existing pet");
+                Assert.assertTrue(errorMessage.toLowerCase().contains("not found"),
+                        "Expected 'not found' message, but got: " + errorMessage);
+                System.out.println("Test Passed: API returned 404 - Not Found as expected.");
             }
-
-        } else {
-            Assert.fail("Unexpected response code: " + statusCode + ". Response Body: " + responseBody);
+            else {
+                Assert.fail("Unexpected response code: " + statusCode + ". Response Body: " + responseBody);
+            }
+        } catch (Exception e) {
+            // Eğer API büyük sayı nedeniyle hata veriyorsa, istisnayı yakala ve 404 olup olmadığını kontrol et
+            System.out.println("Exception caught: " + e.getMessage());
+            Assert.assertTrue(e.getMessage().contains("404"), "Expected 404 Not Found exception, but got: " + e.getMessage());
         }
     }
+
+
 
 }
