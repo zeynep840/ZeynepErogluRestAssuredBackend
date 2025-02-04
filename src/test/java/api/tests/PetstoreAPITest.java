@@ -45,6 +45,7 @@ public class PetstoreAPITest extends ApiBase {
                 .extract().response();
 
         Assert.assertEquals(response.jsonPath().getLong("id"), petId);
+        System.out.println(response.asPrettyString());
     }
 
     @Test(priority = 3, dependsOnMethods = "testCreatePet")
@@ -59,6 +60,7 @@ public class PetstoreAPITest extends ApiBase {
                 .extract().response();
 
         Assert.assertEquals(response.jsonPath().getString("name"), "Max");
+        System.out.println(response.asPrettyString());
     }
 
     @Test(priority = 4, dependsOnMethods = "testCreatePet")
