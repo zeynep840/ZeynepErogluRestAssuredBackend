@@ -23,13 +23,14 @@ public class PetstoreAPITest extends ApiBase {
         petId = generateUniqueId();
         Response response = given()
                 .contentType(ContentType.JSON)
-                .body(ApiPayloads.createPetPayload(petId, "Buddy", "available"))
+                .body(ApiPayloads.createPetPayload(petId, "Buddy", "available","www.google.com",15, "Deneme",25 ,"Sürüngenler"))
                 .when()
                 .post(ApiEndpoints.CREATE_PET)
                 .then()
                 .statusCode(200)
                 .extract().response();
 
+        System.out.println(response.asPrettyString());
         System.out.println("Created Pet ID: " + petId);
         Assert.assertEquals(response.jsonPath().getLong("id"), petId);
     }
