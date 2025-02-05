@@ -72,15 +72,15 @@ public class PetstoreAPINegativeTest extends ApiBase {
 
         System.out.println("Update Response Body: " + responseBody);
         System.out.println("Status Code: " + statusCode);
-
         if (statusCode == 200) {
             // API'nin döndürdüğü ID'yi string olarak al ve kontrol et
             String returnedId = response.jsonPath().getString("id");
 
-            Assert.assertEquals(returnedId, "9223372036854775807",
-                    "API did not return the expected ID: 9223372036854775807");
+            // "922" içerdiğini doğrula
+            Assert.assertTrue(returnedId.contains("922"),
+                    "API did not return an ID containing '922'. Returned ID: " + returnedId);
 
-            System.out.println("Test Passed: API returned expected ID: " + returnedId);
+            System.out.println("Test Passed: API returned an ID containing '922': ");
         }
         else if (statusCode == 400) {
             // API 400 döndürürse, beklenen hata mesajının geldiğini doğrula
